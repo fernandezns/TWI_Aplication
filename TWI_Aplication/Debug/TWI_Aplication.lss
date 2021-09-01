@@ -3,31 +3,31 @@ TWI_Aplication.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  00000594  2**0
+  0 .data         00000000  00800100  00800100  000005a4  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         00000520  00000000  00000000  00000074  2**1
+  1 .text         00000530  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000006  00800100  00800100  00000594  2**0
+  2 .bss          00000006  00800100  00800100  000005a4  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  00000594  2**0
+  3 .comment      00000030  00000000  00000000  000005a4  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000005c4  2**2
+  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000005d4  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 00000078  00000000  00000000  00000604  2**0
+  5 .debug_aranges 00000078  00000000  00000000  00000614  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000dd5  00000000  00000000  0000067c  2**0
+  6 .debug_info   00000dd5  00000000  00000000  0000068c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000750  00000000  00000000  00001451  2**0
+  7 .debug_abbrev 0000076a  00000000  00000000  00001461  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000797  00000000  00000000  00001ba1  2**0
+  8 .debug_line   000007b9  00000000  00000000  00001bcb  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  000000e4  00000000  00000000  00002338  2**2
+  9 .debug_frame  000000ec  00000000  00000000  00002384  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000480  00000000  00000000  0000241c  2**0
+ 10 .debug_str    00000486  00000000  00000000  00002470  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    000001c7  00000000  00000000  0000289c  2**0
+ 11 .debug_loc    00000156  00000000  00000000  000028f6  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000068  00000000  00000000  00002a63  2**0
+ 12 .debug_ranges 00000068  00000000  00000000  00002a4c  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -109,19 +109,19 @@ Disassembly of section .text:
   b6:	a6 30       	cpi	r26, 0x06	; 6
   b8:	b2 07       	cpc	r27, r18
   ba:	e1 f7       	brne	.-8      	; 0xb4 <.do_clear_bss_loop>
-  bc:	0e 94 38 02 	call	0x470	; 0x470 <main>
-  c0:	0c 94 8e 02 	jmp	0x51c	; 0x51c <_exit>
+  bc:	0e 94 61 02 	call	0x4c2	; 0x4c2 <main>
+  c0:	0c 94 96 02 	jmp	0x52c	; 0x52c <_exit>
 
 000000c4 <__bad_interrupt>:
   c4:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 000000c8 <__vector_24>:
-			case 8:
-				disply1306Data(ATMEGA328P,0x00);
-				comando++;
-				break;
-			case 9:
-				comando=LAST_COMAND_RECEIVED;
+			twi_Status=1;
+			writeDisplay();
+			if(comando==LAST_COMAND_RECEIVED){
+				disply1306StopTWI(ATMEGA328P);
+				comando=0;
+				tarea++;
   c8:	1f 92       	push	r1
   ca:	0f 92       	push	r0
   cc:	0f b6       	in	r0, 0x3f	; 63
@@ -187,7 +187,7 @@ Disassembly of section .text:
  144:	fc 01       	movw	r30, r24
  146:	ec 5c       	subi	r30, 0xCC	; 204
  148:	ff 4f       	sbci	r31, 0xFF	; 255
- 14a:	0c 94 88 02 	jmp	0x510	; 0x510 <__tablejump2__>
+ 14a:	0c 94 90 02 	jmp	0x520	; 0x520 <__tablejump2__>
  14e:	60 e0       	ldi	r22, 0x00	; 0
  150:	81 e0       	ldi	r24, 0x01	; 1
  152:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
@@ -381,253 +381,270 @@ Disassembly of section .text:
  36c:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  370:	08 95       	ret
 
-00000372 <cleanPage>:
- 372:	90 91 00 01 	lds	r25, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
- 376:	91 30       	cpi	r25, 0x01	; 1
- 378:	81 f0       	breq	.+32     	; 0x39a <cleanPage+0x28>
- 37a:	28 f0       	brcs	.+10     	; 0x386 <cleanPage+0x14>
- 37c:	92 30       	cpi	r25, 0x02	; 2
- 37e:	b9 f0       	breq	.+46     	; 0x3ae <cleanPage+0x3c>
- 380:	93 30       	cpi	r25, 0x03	; 3
- 382:	f9 f0       	breq	.+62     	; 0x3c2 <cleanPage+0x50>
- 384:	08 95       	ret
- 386:	60 ec       	ldi	r22, 0xC0	; 192
- 388:	81 e0       	ldi	r24, 0x01	; 1
- 38a:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
- 38e:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
- 392:	8f 5f       	subi	r24, 0xFF	; 255
- 394:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
- 398:	08 95       	ret
- 39a:	68 2f       	mov	r22, r24
- 39c:	81 e0       	ldi	r24, 0x01	; 1
- 39e:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
- 3a2:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
- 3a6:	8f 5f       	subi	r24, 0xFF	; 255
- 3a8:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
- 3ac:	08 95       	ret
- 3ae:	60 e4       	ldi	r22, 0x40	; 64
- 3b0:	81 e0       	ldi	r24, 0x01	; 1
- 3b2:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
- 3b6:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
- 3ba:	8f 5f       	subi	r24, 0xFF	; 255
- 3bc:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
- 3c0:	08 95       	ret
- 3c2:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <i>
- 3c6:	88 23       	and	r24, r24
- 3c8:	54 f0       	brlt	.+20     	; 0x3de <cleanPage+0x6c>
- 3ca:	60 e0       	ldi	r22, 0x00	; 0
- 3cc:	81 e0       	ldi	r24, 0x01	; 1
- 3ce:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
- 3d2:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <i>
- 3d6:	8f 5f       	subi	r24, 0xFF	; 255
- 3d8:	80 93 01 01 	sts	0x0101, r24	; 0x800101 <i>
- 3dc:	08 95       	ret
- 3de:	10 92 00 01 	sts	0x0100, r1	; 0x800100 <__DATA_REGION_ORIGIN__>
- 3e2:	10 92 01 01 	sts	0x0101, r1	; 0x800101 <i>
- 3e6:	80 ef       	ldi	r24, 0xF0	; 240
- 3e8:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
- 3ec:	08 95       	ret
+00000372 <disply1306StopTWI>:
+ 372:	80 ff       	sbrs	r24, 0
+ 374:	03 c0       	rjmp	.+6      	; 0x37c <disply1306StopTWI+0xa>
+ 376:	84 e9       	ldi	r24, 0x94	; 148
+ 378:	80 93 bc 00 	sts	0x00BC, r24	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
+ 37c:	08 95       	ret
 
-000003ee <disply1306StopTWI>:
-		TWCR=(1<<TWINT)|(1<<TWEN)|(1<<TWIE);
+0000037e <disply1306DefaultInit>:
+ 37e:	80 91 05 01 	lds	r24, 0x0105	; 0x800105 <twi_Status>
+ 382:	88 30       	cpi	r24, 0x08	; 8
+ 384:	79 f0       	breq	.+30     	; 0x3a4 <disply1306DefaultInit+0x26>
+ 386:	18 f4       	brcc	.+6      	; 0x38e <disply1306DefaultInit+0x10>
+ 388:	88 23       	and	r24, r24
+ 38a:	31 f0       	breq	.+12     	; 0x398 <disply1306DefaultInit+0x1a>
+ 38c:	08 95       	ret
+ 38e:	88 31       	cpi	r24, 0x18	; 24
+ 390:	79 f0       	breq	.+30     	; 0x3b0 <disply1306DefaultInit+0x32>
+ 392:	88 32       	cpi	r24, 0x28	; 40
+ 394:	69 f0       	breq	.+26     	; 0x3b0 <disply1306DefaultInit+0x32>
+ 396:	08 95       	ret
+ 398:	81 e0       	ldi	r24, 0x01	; 1
+ 39a:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
+ 39e:	0e 94 7b 00 	call	0xf6	; 0xf6 <disply1306InitTWI>
+ 3a2:	08 95       	ret
+ 3a4:	81 e0       	ldi	r24, 0x01	; 1
+ 3a6:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
+ 3aa:	0e 94 89 00 	call	0x112	; 0x112 <disply1306SlaveAddrsTWI>
+ 3ae:	08 95       	ret
+ 3b0:	81 e0       	ldi	r24, 0x01	; 1
+ 3b2:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
+ 3b6:	0e 94 9a 00 	call	0x134	; 0x134 <disply1306Settings>
+ 3ba:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
+ 3be:	80 3f       	cpi	r24, 0xF0	; 240
+ 3c0:	79 f4       	brne	.+30     	; 0x3e0 <disply1306DefaultInit+0x62>
+ 3c2:	81 e0       	ldi	r24, 0x01	; 1
+ 3c4:	0e 94 b9 01 	call	0x372	; 0x372 <disply1306StopTWI>
+ 3c8:	10 92 03 01 	sts	0x0103, r1	; 0x800103 <comando>
+ 3cc:	80 91 02 01 	lds	r24, 0x0102	; 0x800102 <tarea>
+ 3d0:	8f 5f       	subi	r24, 0xFF	; 255
+ 3d2:	80 93 02 01 	sts	0x0102, r24	; 0x800102 <tarea>
+ 3d6:	81 e0       	ldi	r24, 0x01	; 1
+ 3d8:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <flagInterrup>
+ 3dc:	10 92 05 01 	sts	0x0105, r1	; 0x800105 <twi_Status>
+ 3e0:	08 95       	ret
+
+000003e2 <cleanPage>:
+			}
+			break;
 	}
 }
 
-void disply1306StopTWI(uint8_t micro){
-	if (micro&ATMEGA328P){
- 3ee:	80 ff       	sbrs	r24, 0
- 3f0:	03 c0       	rjmp	.+6      	; 0x3f8 <disply1306StopTWI+0xa>
-		TWCR=(1<<TWINT)|(1<<TWEN)|(1<<TWSTO);
- 3f2:	84 e9       	ldi	r24, 0x94	; 148
- 3f4:	80 93 bc 00 	sts	0x00BC, r24	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
- 3f8:	08 95       	ret
-
-000003fa <disply1306DefaultInit>:
-			}
+void cleanPage(uint8_t page){
+ 3e2:	cf 93       	push	r28
+ 3e4:	c8 2f       	mov	r28, r24
+	switch(twi_Status){
+ 3e6:	80 91 05 01 	lds	r24, 0x0105	; 0x800105 <twi_Status>
+ 3ea:	88 30       	cpi	r24, 0x08	; 8
+ 3ec:	79 f0       	breq	.+30     	; 0x40c <__EEPROM_REGION_LENGTH__+0xc>
+ 3ee:	18 f4       	brcc	.+6      	; 0x3f6 <cleanPage+0x14>
+ 3f0:	88 23       	and	r24, r24
+ 3f2:	31 f0       	breq	.+12     	; 0x400 <__EEPROM_REGION_LENGTH__>
+ 3f4:	16 c0       	rjmp	.+44     	; 0x422 <__EEPROM_REGION_LENGTH__+0x22>
+ 3f6:	88 31       	cpi	r24, 0x18	; 24
+ 3f8:	79 f0       	breq	.+30     	; 0x418 <__EEPROM_REGION_LENGTH__+0x18>
+ 3fa:	88 32       	cpi	r24, 0x28	; 40
+ 3fc:	69 f0       	breq	.+26     	; 0x418 <__EEPROM_REGION_LENGTH__+0x18>
+ 3fe:	11 c0       	rjmp	.+34     	; 0x422 <__EEPROM_REGION_LENGTH__+0x22>
+		case 0:
+			twi_Status=1;
+ 400:	81 e0       	ldi	r24, 0x01	; 1
+ 402:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
+			disply1306InitTWI(ATMEGA328P);
+ 406:	0e 94 7b 00 	call	0xf6	; 0xf6 <disply1306InitTWI>
+			break;
+ 40a:	0b c0       	rjmp	.+22     	; 0x422 <__EEPROM_REGION_LENGTH__+0x22>
+		case TWI_STARTED:
+			twi_Status=1;
+ 40c:	81 e0       	ldi	r24, 0x01	; 1
+ 40e:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
+			disply1306SlaveAddrsTWI(ATMEGA328P);
+ 412:	0e 94 89 00 	call	0x112	; 0x112 <disply1306SlaveAddrsTWI>
+			break;
+ 416:	05 c0       	rjmp	.+10     	; 0x422 <__EEPROM_REGION_LENGTH__+0x22>
+		case SLA_W_SENT: case DATA_RECEIVED: 
+			twi_Status=1;
+ 418:	81 e0       	ldi	r24, 0x01	; 1
+ 41a:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
+			clean=1;
+ 41e:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+			break;
+	}
+	if(clean){
+ 422:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 426:	88 23       	and	r24, r24
+ 428:	09 f4       	brne	.+2      	; 0x42c <__EEPROM_REGION_LENGTH__+0x2c>
+ 42a:	49 c0       	rjmp	.+146    	; 0x4be <__EEPROM_REGION_LENGTH__+0xbe>
+		clean=0;
+ 42c:	10 92 00 01 	sts	0x0100, r1	; 0x800100 <__DATA_REGION_ORIGIN__>
+		switch(comando){
+ 430:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
+ 434:	81 30       	cpi	r24, 0x01	; 1
+ 436:	81 f0       	breq	.+32     	; 0x458 <__EEPROM_REGION_LENGTH__+0x58>
+ 438:	28 f0       	brcs	.+10     	; 0x444 <__EEPROM_REGION_LENGTH__+0x44>
+ 43a:	82 30       	cpi	r24, 0x02	; 2
+ 43c:	b9 f0       	breq	.+46     	; 0x46c <__EEPROM_REGION_LENGTH__+0x6c>
+ 43e:	83 30       	cpi	r24, 0x03	; 3
+ 440:	f9 f0       	breq	.+62     	; 0x480 <__EEPROM_REGION_LENGTH__+0x80>
+ 442:	3d c0       	rjmp	.+122    	; 0x4be <__EEPROM_REGION_LENGTH__+0xbe>
+			case 0:
+				disply1306Data(ATMEGA328P,0x80);
+ 444:	60 e8       	ldi	r22, 0x80	; 128
+ 446:	81 e0       	ldi	r24, 0x01	; 1
+ 448:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
+				comando++;
+ 44c:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
+ 450:	8f 5f       	subi	r24, 0xFF	; 255
+ 452:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
+				break;	
+ 456:	33 c0       	rjmp	.+102    	; 0x4be <__EEPROM_REGION_LENGTH__+0xbe>
+			case 1:
+				disply1306Data(ATMEGA328P,page);
+ 458:	6c 2f       	mov	r22, r28
+ 45a:	81 e0       	ldi	r24, 0x01	; 1
+ 45c:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
+				comando++;
+ 460:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
+ 464:	8f 5f       	subi	r24, 0xFF	; 255
+ 466:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
+				break;
+ 46a:	29 c0       	rjmp	.+82     	; 0x4be <__EEPROM_REGION_LENGTH__+0xbe>
+			case 2:
+				disply1306Data(ATMEGA328P,0x40);
+ 46c:	60 e4       	ldi	r22, 0x40	; 64
+ 46e:	81 e0       	ldi	r24, 0x01	; 1
+ 470:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
+				comando++;
+ 474:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
+ 478:	8f 5f       	subi	r24, 0xFF	; 255
+ 47a:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
+				break;
+ 47e:	1f c0       	rjmp	.+62     	; 0x4be <__EEPROM_REGION_LENGTH__+0xbe>
+			case 3:
+				if(i<128){
+ 480:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <i>
+ 484:	88 23       	and	r24, r24
+ 486:	54 f0       	brlt	.+20     	; 0x49c <__EEPROM_REGION_LENGTH__+0x9c>
+					disply1306Data(ATMEGA328P,0x00);
+ 488:	60 e0       	ldi	r22, 0x00	; 0
+ 48a:	81 e0       	ldi	r24, 0x01	; 1
+ 48c:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
+					i++;
+ 490:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <i>
+ 494:	8f 5f       	subi	r24, 0xFF	; 255
+ 496:	80 93 01 01 	sts	0x0101, r24	; 0x800101 <i>
+ 49a:	11 c0       	rjmp	.+34     	; 0x4be <__EEPROM_REGION_LENGTH__+0xbe>
+				}
+				else{
+					i=0;
+ 49c:	10 92 01 01 	sts	0x0101, r1	; 0x800101 <i>
+					disply1306StopTWI(ATMEGA328P);
+ 4a0:	81 e0       	ldi	r24, 0x01	; 1
+ 4a2:	0e 94 b9 01 	call	0x372	; 0x372 <disply1306StopTWI>
+					flagInterrup=1;
+ 4a6:	81 e0       	ldi	r24, 0x01	; 1
+ 4a8:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <flagInterrup>
+					comando=0;
+ 4ac:	10 92 03 01 	sts	0x0103, r1	; 0x800103 <comando>
+					tarea++;
+ 4b0:	80 91 02 01 	lds	r24, 0x0102	; 0x800102 <tarea>
+ 4b4:	8f 5f       	subi	r24, 0xFF	; 255
+ 4b6:	80 93 02 01 	sts	0x0102, r24	; 0x800102 <tarea>
+					twi_Status=0;
+ 4ba:	10 92 05 01 	sts	0x0105, r1	; 0x800105 <twi_Status>
+				}
+				break;
 		}
 	}
 }
-void disply1306DefaultInit(){
-	switch(twi_Status){
- 3fa:	80 91 05 01 	lds	r24, 0x0105	; 0x800105 <twi_Status>
- 3fe:	88 30       	cpi	r24, 0x08	; 8
- 400:	79 f0       	breq	.+30     	; 0x420 <__EEPROM_REGION_LENGTH__+0x20>
- 402:	18 f4       	brcc	.+6      	; 0x40a <__EEPROM_REGION_LENGTH__+0xa>
- 404:	88 23       	and	r24, r24
- 406:	31 f0       	breq	.+12     	; 0x414 <__EEPROM_REGION_LENGTH__+0x14>
- 408:	08 95       	ret
- 40a:	88 31       	cpi	r24, 0x18	; 24
- 40c:	79 f0       	breq	.+30     	; 0x42c <__EEPROM_REGION_LENGTH__+0x2c>
- 40e:	88 32       	cpi	r24, 0x28	; 40
- 410:	69 f0       	breq	.+26     	; 0x42c <__EEPROM_REGION_LENGTH__+0x2c>
- 412:	08 95       	ret
-		case 0:
-			twi_Status=1;
- 414:	81 e0       	ldi	r24, 0x01	; 1
- 416:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
-			disply1306InitTWI(ATMEGA328P);
- 41a:	0e 94 7b 00 	call	0xf6	; 0xf6 <disply1306InitTWI>
-			break;
- 41e:	08 95       	ret
-		case TWI_STARTED:
-			twi_Status=1;
- 420:	81 e0       	ldi	r24, 0x01	; 1
- 422:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
-			disply1306SlaveAddrsTWI(ATMEGA328P);
- 426:	0e 94 89 00 	call	0x112	; 0x112 <disply1306SlaveAddrsTWI>
-			break;
- 42a:	08 95       	ret
-		case SLA_W_SENT: case DATA_RECEIVED: 
-			twi_Status=1;
- 42c:	81 e0       	ldi	r24, 0x01	; 1
- 42e:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
-			disply1306Settings();
- 432:	0e 94 9a 00 	call	0x134	; 0x134 <disply1306Settings>
-			if(comando==LAST_COMAND_RECEIVED){
- 436:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
- 43a:	80 3f       	cpi	r24, 0xF0	; 240
- 43c:	c1 f4       	brne	.+48     	; 0x46e <__EEPROM_REGION_LENGTH__+0x6e>
-				disply1306StopTWI(ATMEGA328P);
- 43e:	81 e0       	ldi	r24, 0x01	; 1
- 440:	0e 94 f7 01 	call	0x3ee	; 0x3ee <disply1306StopTWI>
-				comando=0;
- 444:	10 92 03 01 	sts	0x0103, r1	; 0x800103 <comando>
-				tarea++;
- 448:	80 91 02 01 	lds	r24, 0x0102	; 0x800102 <tarea>
- 44c:	8f 5f       	subi	r24, 0xFF	; 255
- 44e:	80 93 02 01 	sts	0x0102, r24	; 0x800102 <tarea>
-				flagInterrup=1;
- 452:	81 e0       	ldi	r24, 0x01	; 1
- 454:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <flagInterrup>
-				twi_Status=0;
- 458:	10 92 05 01 	sts	0x0105, r1	; 0x800105 <twi_Status>
-	#else
-		//round up by default
-		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
-	#endif
+ 4be:	cf 91       	pop	r28
+ 4c0:	08 95       	ret
 
-	__builtin_avr_delay_cycles(__ticks_dc);
- 45c:	2f ef       	ldi	r18, 0xFF	; 255
- 45e:	81 ee       	ldi	r24, 0xE1	; 225
- 460:	94 e0       	ldi	r25, 0x04	; 4
- 462:	21 50       	subi	r18, 0x01	; 1
- 464:	80 40       	sbci	r24, 0x00	; 0
- 466:	90 40       	sbci	r25, 0x00	; 0
- 468:	e1 f7       	brne	.-8      	; 0x462 <__EEPROM_REGION_LENGTH__+0x62>
- 46a:	00 c0       	rjmp	.+0      	; 0x46c <__EEPROM_REGION_LENGTH__+0x6c>
- 46c:	00 00       	nop
- 46e:	08 95       	ret
-
-00000470 <main>:
+000004c2 <main>:
 
 
 
 int main(void)
 {
 	cli();
- 470:	f8 94       	cli
+ 4c2:	f8 94       	cli
 	initPorts();
- 472:	0e 94 78 00 	call	0xf0	; 0xf0 <initPorts>
+ 4c4:	0e 94 78 00 	call	0xf0	; 0xf0 <initPorts>
 	sei();
- 476:	78 94       	sei
- 478:	2f ef       	ldi	r18, 0xFF	; 255
- 47a:	83 ed       	ldi	r24, 0xD3	; 211
- 47c:	90 e3       	ldi	r25, 0x30	; 48
- 47e:	21 50       	subi	r18, 0x01	; 1
- 480:	80 40       	sbci	r24, 0x00	; 0
- 482:	90 40       	sbci	r25, 0x00	; 0
- 484:	e1 f7       	brne	.-8      	; 0x47e <main+0xe>
- 486:	00 c0       	rjmp	.+0      	; 0x488 <main+0x18>
- 488:	00 00       	nop
+ 4c8:	78 94       	sei
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+ 4ca:	2f ef       	ldi	r18, 0xFF	; 255
+ 4cc:	83 ed       	ldi	r24, 0xD3	; 211
+ 4ce:	90 e3       	ldi	r25, 0x30	; 48
+ 4d0:	21 50       	subi	r18, 0x01	; 1
+ 4d2:	80 40       	sbci	r24, 0x00	; 0
+ 4d4:	90 40       	sbci	r25, 0x00	; 0
+ 4d6:	e1 f7       	brne	.-8      	; 0x4d0 <main+0xe>
+ 4d8:	00 c0       	rjmp	.+0      	; 0x4da <main+0x18>
+ 4da:	00 00       	nop
 	_delay_ms(1000);
 	flagInterrup=1;
- 48a:	81 e0       	ldi	r24, 0x01	; 1
- 48c:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <flagInterrup>
+ 4dc:	81 e0       	ldi	r24, 0x01	; 1
+ 4de:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <flagInterrup>
     while (1) 
     {
 		if(flagInterrup){
- 490:	80 91 04 01 	lds	r24, 0x0104	; 0x800104 <flagInterrup>
- 494:	88 23       	and	r24, r24
- 496:	e1 f3       	breq	.-8      	; 0x490 <main+0x20>
+ 4e2:	80 91 04 01 	lds	r24, 0x0104	; 0x800104 <flagInterrup>
+ 4e6:	88 23       	and	r24, r24
+ 4e8:	e1 f3       	breq	.-8      	; 0x4e2 <main+0x20>
 			flagInterrup=0;
- 498:	10 92 04 01 	sts	0x0104, r1	; 0x800104 <flagInterrup>
+ 4ea:	10 92 04 01 	sts	0x0104, r1	; 0x800104 <flagInterrup>
 			switch(tarea){
- 49c:	80 91 02 01 	lds	r24, 0x0102	; 0x800102 <tarea>
- 4a0:	88 23       	and	r24, r24
- 4a2:	19 f0       	breq	.+6      	; 0x4aa <main+0x3a>
- 4a4:	81 30       	cpi	r24, 0x01	; 1
- 4a6:	21 f0       	breq	.+8      	; 0x4b0 <main+0x40>
- 4a8:	f3 cf       	rjmp	.-26     	; 0x490 <main+0x20>
+ 4ee:	80 91 02 01 	lds	r24, 0x0102	; 0x800102 <tarea>
+ 4f2:	81 30       	cpi	r24, 0x01	; 1
+ 4f4:	49 f0       	breq	.+18     	; 0x508 <main+0x46>
+ 4f6:	28 f0       	brcs	.+10     	; 0x502 <main+0x40>
+ 4f8:	82 30       	cpi	r24, 0x02	; 2
+ 4fa:	51 f0       	breq	.+20     	; 0x510 <main+0x4e>
+ 4fc:	83 30       	cpi	r24, 0x03	; 3
+ 4fe:	61 f0       	breq	.+24     	; 0x518 <main+0x56>
+ 500:	f0 cf       	rjmp	.-32     	; 0x4e2 <main+0x20>
 				case 0:
 					disply1306DefaultInit();
- 4aa:	0e 94 fd 01 	call	0x3fa	; 0x3fa <disply1306DefaultInit>
+ 502:	0e 94 bf 01 	call	0x37e	; 0x37e <disply1306DefaultInit>
 					break;
- 4ae:	f0 cf       	rjmp	.-32     	; 0x490 <main+0x20>
+ 506:	ed cf       	rjmp	.-38     	; 0x4e2 <main+0x20>
 				case 1:
-					switch(twi_Status){
- 4b0:	80 91 05 01 	lds	r24, 0x0105	; 0x800105 <twi_Status>
- 4b4:	88 30       	cpi	r24, 0x08	; 8
- 4b6:	79 f0       	breq	.+30     	; 0x4d6 <main+0x66>
- 4b8:	18 f4       	brcc	.+6      	; 0x4c0 <main+0x50>
- 4ba:	88 23       	and	r24, r24
- 4bc:	31 f0       	breq	.+12     	; 0x4ca <main+0x5a>
- 4be:	e8 cf       	rjmp	.-48     	; 0x490 <main+0x20>
- 4c0:	88 31       	cpi	r24, 0x18	; 24
- 4c2:	79 f0       	breq	.+30     	; 0x4e2 <main+0x72>
- 4c4:	88 32       	cpi	r24, 0x28	; 40
- 4c6:	69 f0       	breq	.+26     	; 0x4e2 <main+0x72>
- 4c8:	e3 cf       	rjmp	.-58     	; 0x490 <main+0x20>
-						case 0:
-							twi_Status=1;
- 4ca:	81 e0       	ldi	r24, 0x01	; 1
- 4cc:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
-							disply1306InitTWI(ATMEGA328P);
- 4d0:	0e 94 7b 00 	call	0xf6	; 0xf6 <disply1306InitTWI>
-							break;
- 4d4:	dd cf       	rjmp	.-70     	; 0x490 <main+0x20>
-						case TWI_STARTED:
-							twi_Status=1;
- 4d6:	81 e0       	ldi	r24, 0x01	; 1
- 4d8:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
-							disply1306SlaveAddrsTWI(ATMEGA328P);
- 4dc:	0e 94 89 00 	call	0x112	; 0x112 <disply1306SlaveAddrsTWI>
-							break;
- 4e0:	d7 cf       	rjmp	.-82     	; 0x490 <main+0x20>
-						case SLA_W_SENT: case DATA_RECEIVED: 
-							twi_Status=1;
- 4e2:	81 e0       	ldi	r24, 0x01	; 1
- 4e4:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
-							cleanPage(0xB0);
- 4e8:	80 eb       	ldi	r24, 0xB0	; 176
- 4ea:	0e 94 b9 01 	call	0x372	; 0x372 <cleanPage>
-							if(comando==LAST_COMAND_RECEIVED){
- 4ee:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
- 4f2:	80 3f       	cpi	r24, 0xF0	; 240
- 4f4:	69 f6       	brne	.-102    	; 0x490 <main+0x20>
-								disply1306StopTWI(ATMEGA328P);
- 4f6:	81 e0       	ldi	r24, 0x01	; 1
- 4f8:	0e 94 f7 01 	call	0x3ee	; 0x3ee <disply1306StopTWI>
-								comando=0;
- 4fc:	10 92 03 01 	sts	0x0103, r1	; 0x800103 <comando>
-								tarea++;
- 500:	80 91 02 01 	lds	r24, 0x0102	; 0x800102 <tarea>
- 504:	8f 5f       	subi	r24, 0xFF	; 255
- 506:	80 93 02 01 	sts	0x0102, r24	; 0x800102 <tarea>
-								//flagInterrup=1;
-								twi_Status=0;
- 50a:	10 92 05 01 	sts	0x0105, r1	; 0x800105 <twi_Status>
- 50e:	c0 cf       	rjmp	.-128    	; 0x490 <main+0x20>
+					cleanPage(0xB4);
+ 508:	84 eb       	ldi	r24, 0xB4	; 180
+ 50a:	0e 94 f1 01 	call	0x3e2	; 0x3e2 <cleanPage>
+					break;
+ 50e:	e9 cf       	rjmp	.-46     	; 0x4e2 <main+0x20>
+				case 2:
+					cleanPage(0xB7);
+ 510:	87 eb       	ldi	r24, 0xB7	; 183
+ 512:	0e 94 f1 01 	call	0x3e2	; 0x3e2 <cleanPage>
+					break;
+ 516:	e5 cf       	rjmp	.-54     	; 0x4e2 <main+0x20>
+				case 3:
+					cleanPage(0xB0);
+ 518:	80 eb       	ldi	r24, 0xB0	; 176
+ 51a:	0e 94 f1 01 	call	0x3e2	; 0x3e2 <cleanPage>
+					break;
+ 51e:	e1 cf       	rjmp	.-62     	; 0x4e2 <main+0x20>
 
-00000510 <__tablejump2__>:
- 510:	ee 0f       	add	r30, r30
- 512:	ff 1f       	adc	r31, r31
- 514:	05 90       	lpm	r0, Z+
- 516:	f4 91       	lpm	r31, Z
- 518:	e0 2d       	mov	r30, r0
- 51a:	09 94       	ijmp
+00000520 <__tablejump2__>:
+ 520:	ee 0f       	add	r30, r30
+ 522:	ff 1f       	adc	r31, r31
+ 524:	05 90       	lpm	r0, Z+
+ 526:	f4 91       	lpm	r31, Z
+ 528:	e0 2d       	mov	r30, r0
+ 52a:	09 94       	ijmp
 
-0000051c <_exit>:
- 51c:	f8 94       	cli
+0000052c <_exit>:
+ 52c:	f8 94       	cli
 
-0000051e <__stop_program>:
- 51e:	ff cf       	rjmp	.-2      	; 0x51e <__stop_program>
+0000052e <__stop_program>:
+ 52e:	ff cf       	rjmp	.-2      	; 0x52e <__stop_program>

@@ -65,6 +65,8 @@ uint8_t comando=0;
 uint8_t tarea=0;
 uint8_t i=0;
 uint8_t j=0;
+uint8_t clean=0;
+
 
 ISR(TWI_vect){ 
 	flagInterrup=1;
@@ -100,27 +102,13 @@ int main(void)
 					disply1306DefaultInit();
 					break;
 				case 1:
-					switch(twi_Status){
-						case 0:
-							twi_Status=1;
-							disply1306InitTWI(ATMEGA328P);
-							break;
-						case TWI_STARTED:
-							twi_Status=1;
-							disply1306SlaveAddrsTWI(ATMEGA328P);
-							break;
-						case SLA_W_SENT: case DATA_RECEIVED: 
-							twi_Status=1;
-							cleanPage(0xB0);
-							if(comando==LAST_COMAND_RECEIVED){
-								disply1306StopTWI(ATMEGA328P);
-								comando=0;
-								tarea++;
-								//flagInterrup=1;
-								twi_Status=0;
-							}
-							break;
-					}
+					cleanPage(0xB4);
+					break;
+				case 2:
+					cleanPage(0xB7);
+					break;
+				case 3:
+					cleanPage(0xB0);
 					break;
 			}
 		}
@@ -145,7 +133,6 @@ void disply1306DefaultInit(){
 				tarea++;
 				flagInterrup=1;
 				twi_Status=0;
-				_delay_ms(100);
 			}
 			break;
 	}
@@ -289,31 +276,51 @@ void disply1306Write(){
 }
 
 void cleanPage(uint8_t page){
-	switch(j){
+	switch(twi_Status){
 		case 0:
-			disply1306Data(ATMEGA328P,0xC0);
-			j++;
-			break;	
-		case 1:
-			disply1306Data(ATMEGA328P,page);
-			j++;
+			twi_Status=1;
+			disply1306InitTWI(ATMEGA328P);
 			break;
-		case 2:
-			disply1306Data(ATMEGA328P,0x40);
-			j++;
+		case TWI_STARTED:
+			twi_Status=1;
+			disply1306SlaveAddrsTWI(ATMEGA328P);
 			break;
-		case 3:
-			if(i<128){
-				disply1306Data(ATMEGA328P,0x00);
-				i++;
-			}
-			else{
-				j=0;
-				i=0;
-				comando=LAST_COMAND_RECEIVED;	
-			}
+		case SLA_W_SENT: case DATA_RECEIVED: 
+			twi_Status=1;
+			clean=1;
 			break;
-	}		
+	}
+	if(clean){
+		clean=0;
+		switch(comando){
+			case 0:
+				disply1306Data(ATMEGA328P,0x80);
+				comando++;
+				break;	
+			case 1:
+				disply1306Data(ATMEGA328P,page);
+				comando++;
+				break;
+			case 2:
+				disply1306Data(ATMEGA328P,0x40);
+				comando++;
+				break;
+			case 3:
+				if(i<128){
+					disply1306Data(ATMEGA328P,0x00);
+					i++;
+				}
+				else{
+					i=0;
+					disply1306StopTWI(ATMEGA328P);
+					flagInterrup=1;
+					comando=0;
+					tarea++;
+					twi_Status=0;
+				}
+				break;
+		}
+	}
 }
 void writeDisplay(){
 		switch(comando){
