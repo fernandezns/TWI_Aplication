@@ -56,16 +56,15 @@ void writeDisplay();
 void disply1306Settings();
 void disply1306DefaultInit();
 void disply1306Write();
-void cleanPage(uint8_t page);
+void cleanAllDisplay();
+uint8_t cleanPage(uint8_t page);
 
 //Variables Globales
 volatile uint8_t twi_Status=0;
 volatile uint8_t flagInterrup=0;
 uint8_t comando=0;
 uint8_t tarea=0;
-uint8_t i=0;
-uint8_t j=0;
-uint8_t clean=0;
+
 
 
 ISR(TWI_vect){ 
@@ -102,13 +101,7 @@ int main(void)
 					disply1306DefaultInit();
 					break;
 				case 1:
-					cleanPage(0xB4);
-					break;
-				case 2:
-					cleanPage(0xB7);
-					break;
-				case 3:
-					cleanPage(0xB0);
+					cleanAllDisplay();
 					break;
 			}
 		}
@@ -275,7 +268,8 @@ void disply1306Write(){
 	}
 }
 
-void cleanPage(uint8_t page){
+uint8_t cleanPage(uint8_t page){
+	static uint8_t clean=0,i=0;
 	switch(twi_Status){
 		case 0:
 			twi_Status=1;
@@ -313,15 +307,58 @@ void cleanPage(uint8_t page){
 				else{
 					i=0;
 					disply1306StopTWI(ATMEGA328P);
-					flagInterrup=1;
 					comando=0;
-					tarea++;
 					twi_Status=0;
+					flagInterrup=1;
+					return 1;
 				}
 				break;
 		}
 	}
+	return 0;
 }
+
+void cleanAllDisplay(){
+	static uint8_t page=0;
+	switch(page){
+		case 0:
+			if(cleanPage(0xB0))
+				page++;
+			break;
+		case 1:
+			if(cleanPage(0xB1))
+				page++;
+			break;
+		case 2:
+			if(cleanPage(0xB2))
+				page++;
+			break;
+		case 3:
+			if(cleanPage(0xB3))
+				page++;
+			break;
+		case 4:
+			if(cleanPage(0xB4))
+				page++;
+			break;
+		case 5:
+			if(cleanPage(0xB5))
+				page++;
+			break;	
+		case 6:
+			if(cleanPage(0xB6))
+				page++;
+			break;
+		case 7:
+			if(cleanPage(0xB7)){
+				tarea++;
+				page=0;
+				flagInterrup=1;
+			}
+			break;
+	}
+}
+
 void writeDisplay(){
 		switch(comando){
 			case 0:
