@@ -9,7 +9,9 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 //#include "Display_1306/Display_1306.h"
+#include "Display_1306/FONT2.h"
  
+ //Definiciones
 #define ATMEGA328P	1
 #define SCL_CLOCK 100000UL
 #define DISPLAY_HEIGHT 64 //display 64pixls x 128 pixls
@@ -55,7 +57,7 @@ void initPorts();
 void writeDisplay();
 void disply1306Settings();
 void disply1306DefaultInit();
-void disply1306Write();
+void disply1306Write(uint8_t page,uint8_t cantLetras);
 void cleanAllDisplay();
 uint8_t cleanPage(uint8_t page);
 
@@ -64,6 +66,7 @@ volatile uint8_t twi_Status=0;
 volatile uint8_t flagInterrup=0;
 uint8_t comando=0;
 uint8_t tarea=0;
+uint8_t texto[]={'H','O','L','A',' ','M','U','N','D','O'};
 
 
 
@@ -103,10 +106,71 @@ int main(void)
 				case 1:
 					cleanAllDisplay();
 					break;
+				case 2:
+					//disply1306Write(0xB2,10);
+					disply1306Write(0xB0,10);
+					break;
 			}
 		}
 	}
 }
+
+void disply1306Write(uint8_t page,uint8_t cantLetras){
+	static uint8_t write=0,k=0,j=0;
+	uint8_t caracter=0;
+	
+	switch(twi_Status){
+		case 0:
+			twi_Status=1;
+			disply1306InitTWI(ATMEGA328P);
+			break;
+		case TWI_STARTED:
+			twi_Status=1;
+			disply1306SlaveAddrsTWI(ATMEGA328P);
+			break;
+		case SLA_W_SENT: case DATA_RECEIVED: 
+			twi_Status=1;
+			write=1;
+			break;
+	}
+
+	if(write){
+		write=0;
+		switch(comando){
+			case 0:
+				disply1306Data(ATMEGA328P,0x80);
+				comando++;
+				break;	
+			case 1:
+				disply1306Data(ATMEGA328P,page);
+				comando++;
+				break;
+			case 2:
+				disply1306Data(ATMEGA328P,0x40);
+				comando++;
+				break;
+			case 3:
+				if(k<cantLetras){
+					caracter=pgm_read_byte_near(&ROMCHAR[texto[k]*8+j]);
+					disply1306Data(ATMEGA328P,caracter);
+					j++;
+					if(j==8){
+						k++;
+						j=0;
+					}
+				}
+				else{
+					comando=0;
+					flagInterrup=1;
+					disply1306StopTWI(ATMEGA328P);
+					twi_Status=0;
+					tarea++;
+				}
+				break;
+		}
+	}
+}
+
 void disply1306DefaultInit(){
 	switch(twi_Status){
 		case 0:
@@ -246,27 +310,7 @@ void disply1306Settings(){
 	}
 }
 
-void disply1306Write(){
-	switch(twi_Status){
-		case 0:
-			twi_Status=1;
-			disply1306InitTWI(ATMEGA328P);
-			break;
-		case TWI_STARTED:
-			twi_Status=1;
-			disply1306SlaveAddrsTWI(ATMEGA328P);
-			break;
-		case SLA_W_SENT: case DATA_RECEIVED: 
-			twi_Status=1;
-			writeDisplay();
-			if(comando==LAST_COMAND_RECEIVED){
-				disply1306StopTWI(ATMEGA328P);
-				comando=0;
-				tarea++;
-			}
-			break;
-	}
-}
+
 
 uint8_t cleanPage(uint8_t page){
 	static uint8_t clean=0,i=0;
@@ -359,80 +403,10 @@ void cleanAllDisplay(){
 	}
 }
 
-void writeDisplay(){
-		switch(comando){
-			case 0:
-				disply1306Data(ATMEGA328P,CTRL_BYTE_DATO);
-				comando++;
-				break;
-			case 1:
-				disply1306Data(ATMEGA328P,0xFF);
-				comando++;
-				break;
-			case 2:
-				disply1306Data(ATMEGA328P,0x88);
-				comando++;
-				break;
-			case 3:
-				disply1306Data(ATMEGA328P,0x88);
-				comando++;
-				break;
-			case 4:
-				disply1306Data(ATMEGA328P,0x80);
-				comando++;
-				break;
-			case 5:
-				disply1306Data(ATMEGA328P,0x80);
-				comando++;
-				break;	
-			case 6:
-				disply1306Data(ATMEGA328P,0x00);
-				comando++;
-				break;
-			case 7:
-				disply1306Data(ATMEGA328P,0x00);
-				comando++;
-				break;
-			case 8:
-				disply1306Data(ATMEGA328P,0x00);
-				comando++;
-				break;
-			case 9:
-				comando=LAST_COMAND_RECEIVED;
-				break;	
-		}
-		
-		//Send_Command(0x40,0x7f);
-		//Send_Command(0x40,0x81);
-		//Send_Command(0x40,0x81);
-		//Send_Command(0x40,0x81);
-		//Send_Command(0x40,0x81);
-		//Send_Command(0x40,0x00);
-		//Send_Command(0x40,0x00);
-		//Send_Command(0x40,0x00);
-		//
-		//Send_Command(0x40,0x7f);
-		//Send_Command(0x40,0x88);
-		//Send_Command(0x40,0x88);
-		//Send_Command(0x40,0x88);
-		//Send_Command(0x40,0x7F);
-		//Send_Command(0x40,0x00);
-		//Send_Command(0x40,0x00);
-		//Send_Command(0x40,0x00);
-//
-		//Send_Command(0x40,0xFf);
-		//Send_Command(0x40,0x01);
-		//Send_Command(0x40,0x01);
-		//Send_Command(0x40,0x01);
-		//Send_Command(0x40,0x01);
-		//Send_Command(0x40,0x00);
-		//Send_Command(0x40,0x00);
-		//Send_Command(0x40,0x00);
-	
-}
+
 
 void disply1306InitTWI(uint8_t micro){
-	if	(micro&ATMEGA328P){
+	if	(micro==ATMEGA328P){
 		TWBR=((F_CPU/SCL_CLOCK)-16)/2;			//Factor de division del bitrate generator = 32
 		TWSR&=~((1<<TWPS0)|(1<<TWPS1));						//TWI Prescaler = 1
 		TWCR=(1<<TWINT)|(1<<TWSTA)|(1<<TWEN)|(1<<TWIE);
@@ -440,21 +414,21 @@ void disply1306InitTWI(uint8_t micro){
 }
 
 void disply1306SlaveAddrsTWI(uint8_t micro){
-	if(micro&ATMEGA328P){
+	if(micro==ATMEGA328P){
 		TWDR=SLAVE_WRITE;
 		TWCR=(1<<TWINT)|(1<<TWEN)|(1<<TWIE);
 	}
 }
 
 void disply1306Data(uint8_t micro,uint8_t data){
-	if(micro&ATMEGA328P){
+	if(micro==ATMEGA328P){
 		TWDR=data;
 		TWCR=(1<<TWINT)|(1<<TWEN)|(1<<TWIE);
 	}
 }
 
 void disply1306StopTWI(uint8_t micro){
-	if (micro&ATMEGA328P){
+	if(micro==ATMEGA328P){
 		TWCR=(1<<TWINT)|(1<<TWEN)|(1<<TWSTO);
 	}
 }
