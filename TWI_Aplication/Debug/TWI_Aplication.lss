@@ -3,31 +3,31 @@ TWI_Aplication.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  0000047a  2**0
+  0 .data         00000000  00800100  00800100  00000594  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         00000406  00000000  00000000  00000074  2**1
+  1 .text         00000520  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000003  00800100  00800100  0000047a  2**0
+  2 .bss          00000006  00800100  00800100  00000594  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  0000047a  2**0
+  3 .comment      00000030  00000000  00000000  00000594  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000004ac  2**2
+  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000005c4  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 00000060  00000000  00000000  000004ec  2**0
+  5 .debug_aranges 00000078  00000000  00000000  00000604  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000b39  00000000  00000000  0000054c  2**0
+  6 .debug_info   00000dd5  00000000  00000000  0000067c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000727  00000000  00000000  00001085  2**0
+  7 .debug_abbrev 00000750  00000000  00000000  00001451  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   0000064d  00000000  00000000  000017ac  2**0
+  8 .debug_line   00000797  00000000  00000000  00001ba1  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  000000b4  00000000  00000000  00001dfc  2**2
+  9 .debug_frame  000000e4  00000000  00000000  00002338  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000445  00000000  00000000  00001eb0  2**0
+ 10 .debug_str    00000480  00000000  00000000  0000241c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00000108  00000000  00000000  000022f5  2**0
+ 11 .debug_loc    000001c7  00000000  00000000  0000289c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000050  00000000  00000000  000023fd  2**0
+ 12 .debug_ranges 00000068  00000000  00000000  00002a63  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -106,22 +106,22 @@ Disassembly of section .text:
   b4:	1d 92       	st	X+, r1
 
 000000b6 <.do_clear_bss_start>:
-  b6:	a3 30       	cpi	r26, 0x03	; 3
+  b6:	a6 30       	cpi	r26, 0x06	; 6
   b8:	b2 07       	cpc	r27, r18
   ba:	e1 f7       	brne	.-8      	; 0xb4 <.do_clear_bss_loop>
-  bc:	0e 94 bf 01 	call	0x37e	; 0x37e <main>
-  c0:	0c 94 01 02 	jmp	0x402	; 0x402 <_exit>
+  bc:	0e 94 38 02 	call	0x470	; 0x470 <main>
+  c0:	0c 94 8e 02 	jmp	0x51c	; 0x51c <_exit>
 
 000000c4 <__bad_interrupt>:
   c4:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 000000c8 <__vector_24>:
-		//Send_Command(0x40,0x01);
-		//Send_Command(0x40,0x00);
-		//Send_Command(0x40,0x00);
-		//Send_Command(0x40,0x00);
-	
-}
+			case 8:
+				disply1306Data(ATMEGA328P,0x00);
+				comando++;
+				break;
+			case 9:
+				comando=LAST_COMAND_RECEIVED;
   c8:	1f 92       	push	r1
   ca:	0f 92       	push	r0
   cc:	0f b6       	in	r0, 0x3f	; 63
@@ -129,10 +129,10 @@ Disassembly of section .text:
   d0:	11 24       	eor	r1, r1
   d2:	8f 93       	push	r24
   d4:	81 e0       	ldi	r24, 0x01	; 1
-  d6:	80 93 01 01 	sts	0x0101, r24	; 0x800101 <flagInterrup>
+  d6:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <flagInterrup>
   da:	80 91 b9 00 	lds	r24, 0x00B9	; 0x8000b9 <__TEXT_REGION_LENGTH__+0x7f80b9>
   de:	88 7f       	andi	r24, 0xF8	; 248
-  e0:	80 93 02 01 	sts	0x0102, r24	; 0x800102 <twi_Status>
+  e0:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
   e4:	8f 91       	pop	r24
   e6:	0f 90       	pop	r0
   e8:	0f be       	out	0x3f, r0	; 63
@@ -146,64 +146,38 @@ Disassembly of section .text:
   f4:	08 95       	ret
 
 000000f6 <disply1306InitTWI>:
-
-void disply1306InitTWI(uint8_t micro){
-	if	(micro&ATMEGA328P){
   f6:	80 ff       	sbrs	r24, 0
   f8:	0b c0       	rjmp	.+22     	; 0x110 <disply1306InitTWI+0x1a>
-		TWBR=((F_CPU/SCL_CLOCK)-16)/2;			//Factor de division del bitrate generator = 32
   fa:	88 e4       	ldi	r24, 0x48	; 72
   fc:	80 93 b8 00 	sts	0x00B8, r24	; 0x8000b8 <__TEXT_REGION_LENGTH__+0x7f80b8>
-		TWSR&=~((1<<TWPS0)|(1<<TWPS1));						//TWI Prescaler = 1
  100:	e9 eb       	ldi	r30, 0xB9	; 185
  102:	f0 e0       	ldi	r31, 0x00	; 0
  104:	80 81       	ld	r24, Z
  106:	8c 7f       	andi	r24, 0xFC	; 252
  108:	80 83       	st	Z, r24
-		TWCR=(1<<TWINT)|(1<<TWSTA)|(1<<TWEN)|(1<<TWIE);
  10a:	85 ea       	ldi	r24, 0xA5	; 165
  10c:	80 93 bc 00 	sts	0x00BC, r24	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
  110:	08 95       	ret
 
 00000112 <disply1306SlaveAddrsTWI>:
-	}	
-}
-
-void disply1306SlaveAddrsTWI(uint8_t micro){
-	if(micro&ATMEGA328P){
  112:	80 ff       	sbrs	r24, 0
  114:	06 c0       	rjmp	.+12     	; 0x122 <disply1306SlaveAddrsTWI+0x10>
-		TWDR=SLAVE_WRITE;
  116:	88 e7       	ldi	r24, 0x78	; 120
  118:	80 93 bb 00 	sts	0x00BB, r24	; 0x8000bb <__TEXT_REGION_LENGTH__+0x7f80bb>
-		TWCR=(1<<TWINT)|(1<<TWEN)|(1<<TWIE);
  11c:	85 e8       	ldi	r24, 0x85	; 133
  11e:	80 93 bc 00 	sts	0x00BC, r24	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
  122:	08 95       	ret
 
 00000124 <disply1306Data>:
-	}
-}
-
-void disply1306Data(uint8_t micro,uint8_t data){
-	if(micro&ATMEGA328P){
  124:	80 ff       	sbrs	r24, 0
  126:	05 c0       	rjmp	.+10     	; 0x132 <disply1306Data+0xe>
-		TWDR=data;
  128:	60 93 bb 00 	sts	0x00BB, r22	; 0x8000bb <__TEXT_REGION_LENGTH__+0x7f80bb>
-		TWCR=(1<<TWINT)|(1<<TWEN)|(1<<TWIE);
  12c:	85 e8       	ldi	r24, 0x85	; 133
  12e:	80 93 bc 00 	sts	0x00BC, r24	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
  132:	08 95       	ret
 
 00000134 <disply1306Settings>:
-		}
-	}
-}
-
-void disply1306Settings(){		
-	switch(comando){
- 134:	e0 91 00 01 	lds	r30, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 134:	e0 91 03 01 	lds	r30, 0x0103	; 0x800103 <comando>
  138:	8e 2f       	mov	r24, r30
  13a:	90 e0       	ldi	r25, 0x00	; 0
  13c:	8c 31       	cpi	r24, 0x1C	; 28
@@ -213,417 +187,447 @@ void disply1306Settings(){
  144:	fc 01       	movw	r30, r24
  146:	ec 5c       	subi	r30, 0xCC	; 204
  148:	ff 4f       	sbci	r31, 0xFF	; 255
- 14a:	0c 94 fb 01 	jmp	0x3f6	; 0x3f6 <__tablejump2__>
-		case 0:
-			disply1306Data(ATMEGA328P,CTRL_BYTE_COMANDO);
+ 14a:	0c 94 88 02 	jmp	0x510	; 0x510 <__tablejump2__>
  14e:	60 e0       	ldi	r22, 0x00	; 0
  150:	81 e0       	ldi	r24, 0x01	; 1
  152:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 156:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 156:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  15a:	8f 5f       	subi	r24, 0xFF	; 255
- 15c:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 15c:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  160:	08 95       	ret
-		case 1:
-			disply1306Data(ATMEGA328P,DISPLAY_OFF);
  162:	6e ea       	ldi	r22, 0xAE	; 174
  164:	81 e0       	ldi	r24, 0x01	; 1
  166:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 16a:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 16a:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  16e:	8f 5f       	subi	r24, 0xFF	; 255
- 170:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 170:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  174:	08 95       	ret
-		case 2:
-			disply1306Data(ATMEGA328P,CLK_DIVR_OSC_FREQ);
  176:	65 ed       	ldi	r22, 0xD5	; 213
  178:	81 e0       	ldi	r24, 0x01	; 1
  17a:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 17e:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 17e:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  182:	8f 5f       	subi	r24, 0xFF	; 255
- 184:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 184:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  188:	08 95       	ret
-		case 3:
-			disply1306Data(ATMEGA328P,0x80);
  18a:	60 e8       	ldi	r22, 0x80	; 128
  18c:	81 e0       	ldi	r24, 0x01	; 1
  18e:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 192:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 192:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  196:	8f 5f       	subi	r24, 0xFF	; 255
- 198:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 198:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  19c:	08 95       	ret
-		case 4:
-			disply1306Data(ATMEGA328P,MPLX_NUMBER);
  19e:	68 ea       	ldi	r22, 0xA8	; 168
  1a0:	81 e0       	ldi	r24, 0x01	; 1
  1a2:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 1a6:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 1a6:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  1aa:	8f 5f       	subi	r24, 0xFF	; 255
- 1ac:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 1ac:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  1b0:	08 95       	ret
-		case 5:
-			disply1306Data(ATMEGA328P,0x3F);
  1b2:	6f e3       	ldi	r22, 0x3F	; 63
  1b4:	81 e0       	ldi	r24, 0x01	; 1
  1b6:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 1ba:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 1ba:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  1be:	8f 5f       	subi	r24, 0xFF	; 255
- 1c0:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 1c0:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  1c4:	08 95       	ret
-		case 6:
-			disply1306Data(ATMEGA328P,DISPLAY_OFFSET);
  1c6:	63 ed       	ldi	r22, 0xD3	; 211
  1c8:	81 e0       	ldi	r24, 0x01	; 1
  1ca:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 1ce:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 1ce:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  1d2:	8f 5f       	subi	r24, 0xFF	; 255
- 1d4:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 1d4:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  1d8:	08 95       	ret
-		case 7:
-			disply1306Data(ATMEGA328P,0);
  1da:	60 e0       	ldi	r22, 0x00	; 0
  1dc:	81 e0       	ldi	r24, 0x01	; 1
  1de:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 1e2:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 1e2:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  1e6:	8f 5f       	subi	r24, 0xFF	; 255
- 1e8:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 1e8:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  1ec:	08 95       	ret
-		case 8:
-			disply1306Data(ATMEGA328P,RAM_STARTLINE_REG);
  1ee:	60 e4       	ldi	r22, 0x40	; 64
  1f0:	81 e0       	ldi	r24, 0x01	; 1
  1f2:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 1f6:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 1f6:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  1fa:	8f 5f       	subi	r24, 0xFF	; 255
- 1fc:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 1fc:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  200:	08 95       	ret
-		case 9:
-			disply1306Data(ATMEGA328P,CHARGE_PUMP);
  202:	6d e8       	ldi	r22, 0x8D	; 141
  204:	81 e0       	ldi	r24, 0x01	; 1
  206:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 20a:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 20a:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  20e:	8f 5f       	subi	r24, 0xFF	; 255
- 210:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 210:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  214:	08 95       	ret
-		case 10:
-			disply1306Data(ATMEGA328P,0x14);
  216:	64 e1       	ldi	r22, 0x14	; 20
  218:	81 e0       	ldi	r24, 0x01	; 1
  21a:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 21e:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 21e:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  222:	8f 5f       	subi	r24, 0xFF	; 255
- 224:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 224:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  228:	08 95       	ret
-		case 11:
-			disply1306Data(ATMEGA328P,SEGMENT_REMAP);
  22a:	61 ea       	ldi	r22, 0xA1	; 161
  22c:	81 e0       	ldi	r24, 0x01	; 1
  22e:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 232:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 232:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  236:	8f 5f       	subi	r24, 0xFF	; 255
- 238:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 238:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  23c:	08 95       	ret
-		case 12:
-			disply1306Data(ATMEGA328P,COM_OUT_SCAN_DIR);
  23e:	68 ec       	ldi	r22, 0xC8	; 200
  240:	81 e0       	ldi	r24, 0x01	; 1
  242:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 246:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 246:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  24a:	8f 5f       	subi	r24, 0xFF	; 255
- 24c:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 24c:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  250:	08 95       	ret
-		case 13:
-			disply1306Data(ATMEGA328P,COM_PINS_CONFIG);
  252:	6a ed       	ldi	r22, 0xDA	; 218
  254:	81 e0       	ldi	r24, 0x01	; 1
  256:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 25a:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 25a:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  25e:	8f 5f       	subi	r24, 0xFF	; 255
- 260:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 260:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  264:	08 95       	ret
-		case 14:
-			disply1306Data(ATMEGA328P,0x12);
  266:	62 e1       	ldi	r22, 0x12	; 18
  268:	81 e0       	ldi	r24, 0x01	; 1
  26a:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 26e:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 26e:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  272:	8f 5f       	subi	r24, 0xFF	; 255
- 274:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 274:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  278:	08 95       	ret
-		case 15:
-			disply1306Data(ATMEGA328P,CONTRAST);
  27a:	61 e8       	ldi	r22, 0x81	; 129
  27c:	81 e0       	ldi	r24, 0x01	; 1
  27e:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 282:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 282:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  286:	8f 5f       	subi	r24, 0xFF	; 255
- 288:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 288:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  28c:	08 95       	ret
-		case 16:
-			disply1306Data(ATMEGA328P,0x9F);
  28e:	6f e9       	ldi	r22, 0x9F	; 159
  290:	81 e0       	ldi	r24, 0x01	; 1
  292:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 296:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 296:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  29a:	8f 5f       	subi	r24, 0xFF	; 255
- 29c:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 29c:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  2a0:	08 95       	ret
-		case 17:
-			disply1306Data(ATMEGA328P,MEMORY_ADRESS_MODE);
  2a2:	60 e2       	ldi	r22, 0x20	; 32
  2a4:	81 e0       	ldi	r24, 0x01	; 1
  2a6:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 2aa:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 2aa:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  2ae:	8f 5f       	subi	r24, 0xFF	; 255
- 2b0:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 2b0:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  2b4:	08 95       	ret
-		case 18:
-			disply1306Data(ATMEGA328P,0x02);//Memory Addressing Mode (Horizontal=0 , Vertical=1 , Page=2)
  2b6:	62 e0       	ldi	r22, 0x02	; 2
  2b8:	81 e0       	ldi	r24, 0x01	; 1
  2ba:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 2be:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 2be:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  2c2:	8f 5f       	subi	r24, 0xFF	; 255
- 2c4:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 2c4:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  2c8:	08 95       	ret
-		case 19:	
-			disply1306Data(ATMEGA328P,DISABLE_SCROLL);
  2ca:	6e e2       	ldi	r22, 0x2E	; 46
  2cc:	81 e0       	ldi	r24, 0x01	; 1
  2ce:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 2d2:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 2d2:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  2d6:	8f 5f       	subi	r24, 0xFF	; 255
- 2d8:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;	
+ 2d8:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  2dc:	08 95       	ret
-		case 20:
-			disply1306Data(ATMEGA328P,PRE_CHARGE_PERIOD);
  2de:	69 ed       	ldi	r22, 0xD9	; 217
  2e0:	81 e0       	ldi	r24, 0x01	; 1
  2e2:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 2e6:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 2e6:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  2ea:	8f 5f       	subi	r24, 0xFF	; 255
- 2ec:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 2ec:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  2f0:	08 95       	ret
-		case 21:
-			disply1306Data(ATMEGA328P,0x22);
  2f2:	62 e2       	ldi	r22, 0x22	; 34
  2f4:	81 e0       	ldi	r24, 0x01	; 1
  2f6:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 2fa:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 2fa:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  2fe:	8f 5f       	subi	r24, 0xFF	; 255
- 300:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 300:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  304:	08 95       	ret
-		case 22:
-			disply1306Data(ATMEGA328P,VCOMH_DESELECT_LEVEL);
  306:	6b ed       	ldi	r22, 0xDB	; 219
  308:	81 e0       	ldi	r24, 0x01	; 1
  30a:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 30e:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 30e:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  312:	8f 5f       	subi	r24, 0xFF	; 255
- 314:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 314:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  318:	08 95       	ret
-		case 23:
-			disply1306Data(ATMEGA328P,0x40);
  31a:	60 e4       	ldi	r22, 0x40	; 64
  31c:	81 e0       	ldi	r24, 0x01	; 1
  31e:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 322:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 322:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  326:	8f 5f       	subi	r24, 0xFF	; 255
- 328:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 328:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  32c:	08 95       	ret
-		case 24:
-			disply1306Data(ATMEGA328P,ENTIRE_DISPLAY_ON);
- 32e:	65 ea       	ldi	r22, 0xA5	; 165
+ 32e:	64 ea       	ldi	r22, 0xA4	; 164
  330:	81 e0       	ldi	r24, 0x01	; 1
  332:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 336:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 336:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  33a:	8f 5f       	subi	r24, 0xFF	; 255
- 33c:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 33c:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  340:	08 95       	ret
-		case 25:
-			disply1306Data(ATMEGA328P,DISPLAY_INVERSE_MODE);
  342:	67 ea       	ldi	r22, 0xA7	; 167
  344:	81 e0       	ldi	r24, 0x01	; 1
  346:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 34a:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 34a:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  34e:	8f 5f       	subi	r24, 0xFF	; 255
- 350:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 350:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  354:	08 95       	ret
-		case 26:
-			disply1306Data(ATMEGA328P,DISPLAY_ON);
  356:	6f ea       	ldi	r22, 0xAF	; 175
  358:	81 e0       	ldi	r24, 0x01	; 1
  35a:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
-			comando++;
- 35e:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 35e:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
  362:	8f 5f       	subi	r24, 0xFF	; 255
- 364:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-			break;
+ 364:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  368:	08 95       	ret
-		case 27:
-			comando=LAST_COMAND_RECEIVED;
  36a:	80 ef       	ldi	r24, 0xF0	; 240
- 36c:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 36c:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
  370:	08 95       	ret
 
-00000372 <disply1306StopTWI>:
+00000372 <cleanPage>:
+ 372:	90 91 00 01 	lds	r25, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 376:	91 30       	cpi	r25, 0x01	; 1
+ 378:	81 f0       	breq	.+32     	; 0x39a <cleanPage+0x28>
+ 37a:	28 f0       	brcs	.+10     	; 0x386 <cleanPage+0x14>
+ 37c:	92 30       	cpi	r25, 0x02	; 2
+ 37e:	b9 f0       	breq	.+46     	; 0x3ae <cleanPage+0x3c>
+ 380:	93 30       	cpi	r25, 0x03	; 3
+ 382:	f9 f0       	breq	.+62     	; 0x3c2 <cleanPage+0x50>
+ 384:	08 95       	ret
+ 386:	60 ec       	ldi	r22, 0xC0	; 192
+ 388:	81 e0       	ldi	r24, 0x01	; 1
+ 38a:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
+ 38e:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 392:	8f 5f       	subi	r24, 0xFF	; 255
+ 394:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 398:	08 95       	ret
+ 39a:	68 2f       	mov	r22, r24
+ 39c:	81 e0       	ldi	r24, 0x01	; 1
+ 39e:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
+ 3a2:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 3a6:	8f 5f       	subi	r24, 0xFF	; 255
+ 3a8:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 3ac:	08 95       	ret
+ 3ae:	60 e4       	ldi	r22, 0x40	; 64
+ 3b0:	81 e0       	ldi	r24, 0x01	; 1
+ 3b2:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
+ 3b6:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 3ba:	8f 5f       	subi	r24, 0xFF	; 255
+ 3bc:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 3c0:	08 95       	ret
+ 3c2:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <i>
+ 3c6:	88 23       	and	r24, r24
+ 3c8:	54 f0       	brlt	.+20     	; 0x3de <cleanPage+0x6c>
+ 3ca:	60 e0       	ldi	r22, 0x00	; 0
+ 3cc:	81 e0       	ldi	r24, 0x01	; 1
+ 3ce:	0e 94 92 00 	call	0x124	; 0x124 <disply1306Data>
+ 3d2:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <i>
+ 3d6:	8f 5f       	subi	r24, 0xFF	; 255
+ 3d8:	80 93 01 01 	sts	0x0101, r24	; 0x800101 <i>
+ 3dc:	08 95       	ret
+ 3de:	10 92 00 01 	sts	0x0100, r1	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 3e2:	10 92 01 01 	sts	0x0101, r1	; 0x800101 <i>
+ 3e6:	80 ef       	ldi	r24, 0xF0	; 240
+ 3e8:	80 93 03 01 	sts	0x0103, r24	; 0x800103 <comando>
+ 3ec:	08 95       	ret
+
+000003ee <disply1306StopTWI>:
 		TWCR=(1<<TWINT)|(1<<TWEN)|(1<<TWIE);
 	}
 }
 
 void disply1306StopTWI(uint8_t micro){
 	if (micro&ATMEGA328P){
- 372:	80 ff       	sbrs	r24, 0
- 374:	03 c0       	rjmp	.+6      	; 0x37c <disply1306StopTWI+0xa>
+ 3ee:	80 ff       	sbrs	r24, 0
+ 3f0:	03 c0       	rjmp	.+6      	; 0x3f8 <disply1306StopTWI+0xa>
 		TWCR=(1<<TWINT)|(1<<TWEN)|(1<<TWSTO);
- 376:	84 e9       	ldi	r24, 0x94	; 148
- 378:	80 93 bc 00 	sts	0x00BC, r24	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
- 37c:	08 95       	ret
+ 3f2:	84 e9       	ldi	r24, 0x94	; 148
+ 3f4:	80 93 bc 00 	sts	0x00BC, r24	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
+ 3f8:	08 95       	ret
 
-0000037e <main>:
-
-
-
-int main(void)
-{
-	cli();
- 37e:	f8 94       	cli
-	initPorts();
- 380:	0e 94 78 00 	call	0xf0	; 0xf0 <initPorts>
-	sei();
- 384:	78 94       	sei
+000003fa <disply1306DefaultInit>:
+			}
+		}
+	}
+}
+void disply1306DefaultInit(){
+	switch(twi_Status){
+ 3fa:	80 91 05 01 	lds	r24, 0x0105	; 0x800105 <twi_Status>
+ 3fe:	88 30       	cpi	r24, 0x08	; 8
+ 400:	79 f0       	breq	.+30     	; 0x420 <__EEPROM_REGION_LENGTH__+0x20>
+ 402:	18 f4       	brcc	.+6      	; 0x40a <__EEPROM_REGION_LENGTH__+0xa>
+ 404:	88 23       	and	r24, r24
+ 406:	31 f0       	breq	.+12     	; 0x414 <__EEPROM_REGION_LENGTH__+0x14>
+ 408:	08 95       	ret
+ 40a:	88 31       	cpi	r24, 0x18	; 24
+ 40c:	79 f0       	breq	.+30     	; 0x42c <__EEPROM_REGION_LENGTH__+0x2c>
+ 40e:	88 32       	cpi	r24, 0x28	; 40
+ 410:	69 f0       	breq	.+26     	; 0x42c <__EEPROM_REGION_LENGTH__+0x2c>
+ 412:	08 95       	ret
+		case 0:
+			twi_Status=1;
+ 414:	81 e0       	ldi	r24, 0x01	; 1
+ 416:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
+			disply1306InitTWI(ATMEGA328P);
+ 41a:	0e 94 7b 00 	call	0xf6	; 0xf6 <disply1306InitTWI>
+			break;
+ 41e:	08 95       	ret
+		case TWI_STARTED:
+			twi_Status=1;
+ 420:	81 e0       	ldi	r24, 0x01	; 1
+ 422:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
+			disply1306SlaveAddrsTWI(ATMEGA328P);
+ 426:	0e 94 89 00 	call	0x112	; 0x112 <disply1306SlaveAddrsTWI>
+			break;
+ 42a:	08 95       	ret
+		case SLA_W_SENT: case DATA_RECEIVED: 
+			twi_Status=1;
+ 42c:	81 e0       	ldi	r24, 0x01	; 1
+ 42e:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
+			disply1306Settings();
+ 432:	0e 94 9a 00 	call	0x134	; 0x134 <disply1306Settings>
+			if(comando==LAST_COMAND_RECEIVED){
+ 436:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
+ 43a:	80 3f       	cpi	r24, 0xF0	; 240
+ 43c:	c1 f4       	brne	.+48     	; 0x46e <__EEPROM_REGION_LENGTH__+0x6e>
+				disply1306StopTWI(ATMEGA328P);
+ 43e:	81 e0       	ldi	r24, 0x01	; 1
+ 440:	0e 94 f7 01 	call	0x3ee	; 0x3ee <disply1306StopTWI>
+				comando=0;
+ 444:	10 92 03 01 	sts	0x0103, r1	; 0x800103 <comando>
+				tarea++;
+ 448:	80 91 02 01 	lds	r24, 0x0102	; 0x800102 <tarea>
+ 44c:	8f 5f       	subi	r24, 0xFF	; 255
+ 44e:	80 93 02 01 	sts	0x0102, r24	; 0x800102 <tarea>
+				flagInterrup=1;
+ 452:	81 e0       	ldi	r24, 0x01	; 1
+ 454:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <flagInterrup>
+				twi_Status=0;
+ 458:	10 92 05 01 	sts	0x0105, r1	; 0x800105 <twi_Status>
 	#else
 		//round up by default
 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
 	#endif
 
 	__builtin_avr_delay_cycles(__ticks_dc);
- 386:	2f ef       	ldi	r18, 0xFF	; 255
- 388:	83 ed       	ldi	r24, 0xD3	; 211
- 38a:	90 e3       	ldi	r25, 0x30	; 48
- 38c:	21 50       	subi	r18, 0x01	; 1
- 38e:	80 40       	sbci	r24, 0x00	; 0
- 390:	90 40       	sbci	r25, 0x00	; 0
- 392:	e1 f7       	brne	.-8      	; 0x38c <main+0xe>
- 394:	00 c0       	rjmp	.+0      	; 0x396 <main+0x18>
- 396:	00 00       	nop
+ 45c:	2f ef       	ldi	r18, 0xFF	; 255
+ 45e:	81 ee       	ldi	r24, 0xE1	; 225
+ 460:	94 e0       	ldi	r25, 0x04	; 4
+ 462:	21 50       	subi	r18, 0x01	; 1
+ 464:	80 40       	sbci	r24, 0x00	; 0
+ 466:	90 40       	sbci	r25, 0x00	; 0
+ 468:	e1 f7       	brne	.-8      	; 0x462 <__EEPROM_REGION_LENGTH__+0x62>
+ 46a:	00 c0       	rjmp	.+0      	; 0x46c <__EEPROM_REGION_LENGTH__+0x6c>
+ 46c:	00 00       	nop
+ 46e:	08 95       	ret
+
+00000470 <main>:
+
+
+
+int main(void)
+{
+	cli();
+ 470:	f8 94       	cli
+	initPorts();
+ 472:	0e 94 78 00 	call	0xf0	; 0xf0 <initPorts>
+	sei();
+ 476:	78 94       	sei
+ 478:	2f ef       	ldi	r18, 0xFF	; 255
+ 47a:	83 ed       	ldi	r24, 0xD3	; 211
+ 47c:	90 e3       	ldi	r25, 0x30	; 48
+ 47e:	21 50       	subi	r18, 0x01	; 1
+ 480:	80 40       	sbci	r24, 0x00	; 0
+ 482:	90 40       	sbci	r25, 0x00	; 0
+ 484:	e1 f7       	brne	.-8      	; 0x47e <main+0xe>
+ 486:	00 c0       	rjmp	.+0      	; 0x488 <main+0x18>
+ 488:	00 00       	nop
 	_delay_ms(1000);
 	flagInterrup=1;
- 398:	81 e0       	ldi	r24, 0x01	; 1
- 39a:	80 93 01 01 	sts	0x0101, r24	; 0x800101 <flagInterrup>
+ 48a:	81 e0       	ldi	r24, 0x01	; 1
+ 48c:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <flagInterrup>
     while (1) 
     {
 		if(flagInterrup){
- 39e:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <flagInterrup>
- 3a2:	88 23       	and	r24, r24
- 3a4:	e1 f3       	breq	.-8      	; 0x39e <main+0x20>
+ 490:	80 91 04 01 	lds	r24, 0x0104	; 0x800104 <flagInterrup>
+ 494:	88 23       	and	r24, r24
+ 496:	e1 f3       	breq	.-8      	; 0x490 <main+0x20>
 			flagInterrup=0;
- 3a6:	10 92 01 01 	sts	0x0101, r1	; 0x800101 <flagInterrup>
-			switch(twi_Status){
- 3aa:	80 91 02 01 	lds	r24, 0x0102	; 0x800102 <twi_Status>
- 3ae:	88 30       	cpi	r24, 0x08	; 8
- 3b0:	79 f0       	breq	.+30     	; 0x3d0 <main+0x52>
- 3b2:	18 f4       	brcc	.+6      	; 0x3ba <main+0x3c>
- 3b4:	88 23       	and	r24, r24
- 3b6:	31 f0       	breq	.+12     	; 0x3c4 <main+0x46>
- 3b8:	f2 cf       	rjmp	.-28     	; 0x39e <main+0x20>
- 3ba:	88 31       	cpi	r24, 0x18	; 24
- 3bc:	79 f0       	breq	.+30     	; 0x3dc <main+0x5e>
- 3be:	88 32       	cpi	r24, 0x28	; 40
- 3c0:	69 f0       	breq	.+26     	; 0x3dc <main+0x5e>
- 3c2:	ed cf       	rjmp	.-38     	; 0x39e <main+0x20>
+ 498:	10 92 04 01 	sts	0x0104, r1	; 0x800104 <flagInterrup>
+			switch(tarea){
+ 49c:	80 91 02 01 	lds	r24, 0x0102	; 0x800102 <tarea>
+ 4a0:	88 23       	and	r24, r24
+ 4a2:	19 f0       	breq	.+6      	; 0x4aa <main+0x3a>
+ 4a4:	81 30       	cpi	r24, 0x01	; 1
+ 4a6:	21 f0       	breq	.+8      	; 0x4b0 <main+0x40>
+ 4a8:	f3 cf       	rjmp	.-26     	; 0x490 <main+0x20>
 				case 0:
-					twi_Status=1;
- 3c4:	81 e0       	ldi	r24, 0x01	; 1
- 3c6:	80 93 02 01 	sts	0x0102, r24	; 0x800102 <twi_Status>
-					disply1306InitTWI(ATMEGA328P);
- 3ca:	0e 94 7b 00 	call	0xf6	; 0xf6 <disply1306InitTWI>
+					disply1306DefaultInit();
+ 4aa:	0e 94 fd 01 	call	0x3fa	; 0x3fa <disply1306DefaultInit>
 					break;
- 3ce:	e7 cf       	rjmp	.-50     	; 0x39e <main+0x20>
-				case TWI_STARTED:
-					twi_Status=1;
- 3d0:	81 e0       	ldi	r24, 0x01	; 1
- 3d2:	80 93 02 01 	sts	0x0102, r24	; 0x800102 <twi_Status>
-					disply1306SlaveAddrsTWI(ATMEGA328P);
- 3d6:	0e 94 89 00 	call	0x112	; 0x112 <disply1306SlaveAddrsTWI>
-					break;
- 3da:	e1 cf       	rjmp	.-62     	; 0x39e <main+0x20>
-				case SLA_W_SENT: case DATA_RECEIVED: 
-					twi_Status=1;
- 3dc:	81 e0       	ldi	r24, 0x01	; 1
- 3de:	80 93 02 01 	sts	0x0102, r24	; 0x800102 <twi_Status>
-					disply1306Settings();
- 3e2:	0e 94 9a 00 	call	0x134	; 0x134 <disply1306Settings>
-					if(comando==LAST_COMAND_RECEIVED)
- 3e6:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
- 3ea:	80 3f       	cpi	r24, 0xF0	; 240
- 3ec:	c1 f6       	brne	.-80     	; 0x39e <main+0x20>
-						disply1306StopTWI(ATMEGA328P);	
- 3ee:	81 e0       	ldi	r24, 0x01	; 1
- 3f0:	0e 94 b9 01 	call	0x372	; 0x372 <disply1306StopTWI>
- 3f4:	d4 cf       	rjmp	.-88     	; 0x39e <main+0x20>
+ 4ae:	f0 cf       	rjmp	.-32     	; 0x490 <main+0x20>
+				case 1:
+					switch(twi_Status){
+ 4b0:	80 91 05 01 	lds	r24, 0x0105	; 0x800105 <twi_Status>
+ 4b4:	88 30       	cpi	r24, 0x08	; 8
+ 4b6:	79 f0       	breq	.+30     	; 0x4d6 <main+0x66>
+ 4b8:	18 f4       	brcc	.+6      	; 0x4c0 <main+0x50>
+ 4ba:	88 23       	and	r24, r24
+ 4bc:	31 f0       	breq	.+12     	; 0x4ca <main+0x5a>
+ 4be:	e8 cf       	rjmp	.-48     	; 0x490 <main+0x20>
+ 4c0:	88 31       	cpi	r24, 0x18	; 24
+ 4c2:	79 f0       	breq	.+30     	; 0x4e2 <main+0x72>
+ 4c4:	88 32       	cpi	r24, 0x28	; 40
+ 4c6:	69 f0       	breq	.+26     	; 0x4e2 <main+0x72>
+ 4c8:	e3 cf       	rjmp	.-58     	; 0x490 <main+0x20>
+						case 0:
+							twi_Status=1;
+ 4ca:	81 e0       	ldi	r24, 0x01	; 1
+ 4cc:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
+							disply1306InitTWI(ATMEGA328P);
+ 4d0:	0e 94 7b 00 	call	0xf6	; 0xf6 <disply1306InitTWI>
+							break;
+ 4d4:	dd cf       	rjmp	.-70     	; 0x490 <main+0x20>
+						case TWI_STARTED:
+							twi_Status=1;
+ 4d6:	81 e0       	ldi	r24, 0x01	; 1
+ 4d8:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
+							disply1306SlaveAddrsTWI(ATMEGA328P);
+ 4dc:	0e 94 89 00 	call	0x112	; 0x112 <disply1306SlaveAddrsTWI>
+							break;
+ 4e0:	d7 cf       	rjmp	.-82     	; 0x490 <main+0x20>
+						case SLA_W_SENT: case DATA_RECEIVED: 
+							twi_Status=1;
+ 4e2:	81 e0       	ldi	r24, 0x01	; 1
+ 4e4:	80 93 05 01 	sts	0x0105, r24	; 0x800105 <twi_Status>
+							cleanPage(0xB0);
+ 4e8:	80 eb       	ldi	r24, 0xB0	; 176
+ 4ea:	0e 94 b9 01 	call	0x372	; 0x372 <cleanPage>
+							if(comando==LAST_COMAND_RECEIVED){
+ 4ee:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <comando>
+ 4f2:	80 3f       	cpi	r24, 0xF0	; 240
+ 4f4:	69 f6       	brne	.-102    	; 0x490 <main+0x20>
+								disply1306StopTWI(ATMEGA328P);
+ 4f6:	81 e0       	ldi	r24, 0x01	; 1
+ 4f8:	0e 94 f7 01 	call	0x3ee	; 0x3ee <disply1306StopTWI>
+								comando=0;
+ 4fc:	10 92 03 01 	sts	0x0103, r1	; 0x800103 <comando>
+								tarea++;
+ 500:	80 91 02 01 	lds	r24, 0x0102	; 0x800102 <tarea>
+ 504:	8f 5f       	subi	r24, 0xFF	; 255
+ 506:	80 93 02 01 	sts	0x0102, r24	; 0x800102 <tarea>
+								//flagInterrup=1;
+								twi_Status=0;
+ 50a:	10 92 05 01 	sts	0x0105, r1	; 0x800105 <twi_Status>
+ 50e:	c0 cf       	rjmp	.-128    	; 0x490 <main+0x20>
 
-000003f6 <__tablejump2__>:
- 3f6:	ee 0f       	add	r30, r30
- 3f8:	ff 1f       	adc	r31, r31
- 3fa:	05 90       	lpm	r0, Z+
- 3fc:	f4 91       	lpm	r31, Z
- 3fe:	e0 2d       	mov	r30, r0
- 400:	09 94       	ijmp
+00000510 <__tablejump2__>:
+ 510:	ee 0f       	add	r30, r30
+ 512:	ff 1f       	adc	r31, r31
+ 514:	05 90       	lpm	r0, Z+
+ 516:	f4 91       	lpm	r31, Z
+ 518:	e0 2d       	mov	r30, r0
+ 51a:	09 94       	ijmp
 
-00000402 <_exit>:
- 402:	f8 94       	cli
+0000051c <_exit>:
+ 51c:	f8 94       	cli
 
-00000404 <__stop_program>:
- 404:	ff cf       	rjmp	.-2      	; 0x404 <__stop_program>
+0000051e <__stop_program>:
+ 51e:	ff cf       	rjmp	.-2      	; 0x51e <__stop_program>

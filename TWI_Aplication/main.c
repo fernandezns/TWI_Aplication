@@ -24,6 +24,7 @@
 #define SLAVE_READ  (0x3C<<1)|(0x01)
 
 #define CTRL_BYTE_COMANDO 0
+#define CTRL_BYTE_DATO 0x40
 #define DISPLAY_OFF	0xAE
 #define DISPLAY_ON 0xAF
 #define CLK_DIVR_OSC_FREQ	0xD5// Display clock divide ratio & Oscillator frequency
@@ -53,12 +54,17 @@ void disply1306StopTWI(uint8_t micro);
 void initPorts();
 void writeDisplay();
 void disply1306Settings();
-
+void disply1306DefaultInit();
+void disply1306Write();
+void cleanPage(uint8_t page);
 
 //Variables Globales
 volatile uint8_t twi_Status=0;
 volatile uint8_t flagInterrup=0;
 uint8_t comando=0;
+uint8_t tarea=0;
+uint8_t i=0;
+uint8_t j=0;
 
 ISR(TWI_vect){ 
 	flagInterrup=1;
@@ -89,26 +95,61 @@ int main(void)
     {
 		if(flagInterrup){
 			flagInterrup=0;
-			switch(twi_Status){
+			switch(tarea){
 				case 0:
-					twi_Status=1;
-					disply1306InitTWI(ATMEGA328P);
+					disply1306DefaultInit();
 					break;
-				case TWI_STARTED:
-					twi_Status=1;
-					disply1306SlaveAddrsTWI(ATMEGA328P);
-					break;
-				case SLA_W_SENT: case DATA_RECEIVED: 
-					twi_Status=1;
-					disply1306Settings();
-					if(comando==LAST_COMAND_RECEIVED)
-						disply1306StopTWI(ATMEGA328P);	
+				case 1:
+					switch(twi_Status){
+						case 0:
+							twi_Status=1;
+							disply1306InitTWI(ATMEGA328P);
+							break;
+						case TWI_STARTED:
+							twi_Status=1;
+							disply1306SlaveAddrsTWI(ATMEGA328P);
+							break;
+						case SLA_W_SENT: case DATA_RECEIVED: 
+							twi_Status=1;
+							cleanPage(0xB0);
+							if(comando==LAST_COMAND_RECEIVED){
+								disply1306StopTWI(ATMEGA328P);
+								comando=0;
+								tarea++;
+								//flagInterrup=1;
+								twi_Status=0;
+							}
+							break;
+					}
 					break;
 			}
 		}
 	}
 }
-
+void disply1306DefaultInit(){
+	switch(twi_Status){
+		case 0:
+			twi_Status=1;
+			disply1306InitTWI(ATMEGA328P);
+			break;
+		case TWI_STARTED:
+			twi_Status=1;
+			disply1306SlaveAddrsTWI(ATMEGA328P);
+			break;
+		case SLA_W_SENT: case DATA_RECEIVED: 
+			twi_Status=1;
+			disply1306Settings();
+			if(comando==LAST_COMAND_RECEIVED){
+				disply1306StopTWI(ATMEGA328P);
+				comando=0;
+				tarea++;
+				flagInterrup=1;
+				twi_Status=0;
+				_delay_ms(100);
+			}
+			break;
+	}
+}
 void disply1306Settings(){		
 	switch(comando){
 		case 0:
@@ -208,7 +249,7 @@ void disply1306Settings(){
 			comando++;
 			break;
 		case 24:
-			disply1306Data(ATMEGA328P,ENTIRE_DISPLAY_ON);
+			disply1306Data(ATMEGA328P,RESUME_TO_RAM);
 			comando++;
 			break;
 		case 25:
@@ -225,43 +266,97 @@ void disply1306Settings(){
 	}
 }
 
+void disply1306Write(){
+	switch(twi_Status){
+		case 0:
+			twi_Status=1;
+			disply1306InitTWI(ATMEGA328P);
+			break;
+		case TWI_STARTED:
+			twi_Status=1;
+			disply1306SlaveAddrsTWI(ATMEGA328P);
+			break;
+		case SLA_W_SENT: case DATA_RECEIVED: 
+			twi_Status=1;
+			writeDisplay();
+			if(comando==LAST_COMAND_RECEIVED){
+				disply1306StopTWI(ATMEGA328P);
+				comando=0;
+				tarea++;
+			}
+			break;
+	}
+}
+
+void cleanPage(uint8_t page){
+	switch(j){
+		case 0:
+			disply1306Data(ATMEGA328P,0xC0);
+			j++;
+			break;	
+		case 1:
+			disply1306Data(ATMEGA328P,page);
+			j++;
+			break;
+		case 2:
+			disply1306Data(ATMEGA328P,0x40);
+			j++;
+			break;
+		case 3:
+			if(i<128){
+				disply1306Data(ATMEGA328P,0x00);
+				i++;
+			}
+			else{
+				j=0;
+				i=0;
+				comando=LAST_COMAND_RECEIVED;	
+			}
+			break;
+	}		
+}
 void writeDisplay(){
-		TWDR=0x40;//BYTE DE CONTROL: DATOS
-		TWCR=((1<<TWINT)|(1<<TWEN));//Bajo la TWINT FLAG
-		while(!(TWCR & (1<<TWINT)));//Espero la TWINT FLAG
-		
-		TWDR=0xFF;//Set Contrast Control
-		TWCR=((1<<TWINT)|(1<<TWEN));//Bajo la TWINT FLAG
-		while(!(TWCR & (1<<TWINT)));//Espero la TWINT FLAG
-		
-		TWDR=0x88;//Set Contrast Control
-		TWCR=((1<<TWINT)|(1<<TWEN));//Bajo la TWINT FLAG
-		while(!(TWCR & (1<<TWINT)));//Espero la TWINT FLAG
-		
-		TWDR=0x88;//Set Contrast Control
-		TWCR=((1<<TWINT)|(1<<TWEN));//Bajo la TWINT FLAG
-		while(!(TWCR & (1<<TWINT)));//Espero la TWINT FLAG
-		
-		TWDR=0x80;//Set Contrast Control
-		TWCR=((1<<TWINT)|(1<<TWEN));//Bajo la TWINT FLAG
-		while(!(TWCR & (1<<TWINT)));//Espero la TWINT FLAG
-		
-		TWDR=0x80;//Set Contrast Control
-		TWCR=((1<<TWINT)|(1<<TWEN));//Bajo la TWINT FLAG
-		while(!(TWCR & (1<<TWINT)));//Espero la TWINT FLAG
-		
-		TWDR=0x00;//Set Contrast Control
-		TWCR=((1<<TWINT)|(1<<TWEN));//Bajo la TWINT FLAG
-		while(!(TWCR & (1<<TWINT)));//Espero la TWINT FLAG
-		
-		TWDR=0x00;//Set Contrast Control
-		TWCR=((1<<TWINT)|(1<<TWEN));//Bajo la TWINT FLAG
-		while(!(TWCR & (1<<TWINT)));//Espero la TWINT FLAG
-		
-		TWDR=0x00;//Set Contrast Control
-		TWCR=((1<<TWINT)|(1<<TWEN));//Bajo la TWINT FLAG
-		while(!(TWCR & (1<<TWINT)));//Espero la TWINT FLAG
-	
+		switch(comando){
+			case 0:
+				disply1306Data(ATMEGA328P,CTRL_BYTE_DATO);
+				comando++;
+				break;
+			case 1:
+				disply1306Data(ATMEGA328P,0xFF);
+				comando++;
+				break;
+			case 2:
+				disply1306Data(ATMEGA328P,0x88);
+				comando++;
+				break;
+			case 3:
+				disply1306Data(ATMEGA328P,0x88);
+				comando++;
+				break;
+			case 4:
+				disply1306Data(ATMEGA328P,0x80);
+				comando++;
+				break;
+			case 5:
+				disply1306Data(ATMEGA328P,0x80);
+				comando++;
+				break;	
+			case 6:
+				disply1306Data(ATMEGA328P,0x00);
+				comando++;
+				break;
+			case 7:
+				disply1306Data(ATMEGA328P,0x00);
+				comando++;
+				break;
+			case 8:
+				disply1306Data(ATMEGA328P,0x00);
+				comando++;
+				break;
+			case 9:
+				comando=LAST_COMAND_RECEIVED;
+				break;	
+		}
 		
 		//Send_Command(0x40,0x7f);
 		//Send_Command(0x40,0x81);
