@@ -1,16 +1,15 @@
 ﻿/*
- * Display_1306.h
+ * SSD1306.h
  *
- * Created: 27/8/2021 11:19:00
+ * Created: 5/9/2021 20:12:21
  *  Author: Nicolás
  */ 
 
 
-#ifndef DISPLAY_1306_H_
-#define DISPLAY_1306_H_
+#ifndef SSD1306_H_
+#define SSD1306_H_
 
-
-//Definiciones	
+//Definiciones
 #define ATMEGA328P	1
 #define SCL_CLOCK 100000UL
 #define DISPLAY_HEIGHT 64 //display 64pixls x 128 pixls
@@ -61,7 +60,11 @@ void twiInterrupt();
 //static uint8_t twi_Status=0;
 //static uint8_t comando=0;
 //const uint8_t texto[]={'H','O','L','A',' ','M','U','N','D','O'};
-	//
+//
 
 
-#endif /* DISPLAY_1306_H_ */
+
+
+
+
+#endif /* SSD1306_H_ */

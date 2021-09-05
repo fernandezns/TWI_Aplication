@@ -5,7 +5,7 @@
  *  Author: Nicolás
  */
 #include "Display_1306/FONT1.h"
-#include "Display_1306/SSD1306.h"
+#include "Display_1306/Display_1306.h"
 
 static uint8_t twi_Status=0;
 static uint8_t comando=0;
