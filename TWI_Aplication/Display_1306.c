@@ -5,17 +5,17 @@
  *  Author: Nicolás
  */
 #include "Display_1306/FONT1.h"
-#include "Display_1306/Display_1306.h"
+#include "Display_1306.h"
 
 static uint8_t twi_Status=0;
 static uint8_t comando=0;
-const uint8_t texto[]={'H','O','L','A',' ','M','U','N','D','O'};
+
 
 void twiInterrupt(){
 	twi_Status=TWSR&0xF8;
 }
 
-uint8_t disply1306Write(uint8_t page,uint8_t cantLetras){
+uint8_t disply1306Write(uint8_t *string, uint8_t page,uint8_t cantLetras){
 	static uint8_t write=0,k=0,j=0;
 	uint8_t caracter=0;
 	
@@ -51,7 +51,7 @@ uint8_t disply1306Write(uint8_t page,uint8_t cantLetras){
 				break;
 			case 3:
 				if(k<cantLetras){
-					caracter=pgm_read_byte_near(&ROMCHAR[texto[k]*8+j]);
+					caracter=pgm_read_byte_near(&ROMCHAR[*(string+k)*8+j]);
 					disply1306Data(ATMEGA328P,caracter);
 					j++;
 					if(j==8){

@@ -53,7 +53,7 @@ uint8_t disply1306Data(uint8_t micro,uint8_t data);
 uint8_t disply1306StopTWI(uint8_t micro);
 void disply1306Settings();
 uint8_t disply1306DefaultInit();
-uint8_t disply1306Write(uint8_t page,uint8_t cantLetras);
+uint8_t disply1306Write(uint8_t *string,uint8_t page,uint8_t cantLetras);
 uint8_t cleanAllDisplay();
 uint8_t cleanPage(uint8_t page);
 void twiInterrupt();

@@ -8,7 +8,9 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include "Display_1306/Display_1306.h"
+#include "Display_1306.h"
+
+uint8_t texto[]={'H','O','L','A',' ','M','U','N','D','O'};
  
  //Definiciones
 
@@ -78,7 +80,7 @@ int main(void)
 						tarea++;
 					break;
 				case 2:
-					if(disply1306Write(0xB0,10))
+					if(disply1306Write(&texto[0],0xB0,10))
 						tarea++;
 					break;
 			}
